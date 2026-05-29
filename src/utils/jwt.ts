@@ -6,14 +6,16 @@ export interface JwtPayload {
   role: Role;
 }
 
+const getSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET is not set in environment variables');
+  return secret;
+};
+
 export const generateToken = (payload: JwtPayload): string => {
-  const secret = process.env.JWT_SECRET || 'fallback_secret';
-  return jwt.sign(payload, secret, {
-    expiresIn: '7d',
-  });
+  return jwt.sign(payload, getSecret(), { expiresIn: '7d' });
 };
 
 export const verifyToken = (token: string): JwtPayload => {
-  const secret = process.env.JWT_SECRET || 'fallback_secret';
-  return jwt.verify(token, secret) as JwtPayload;
+  return jwt.verify(token, getSecret()) as JwtPayload;
 };
